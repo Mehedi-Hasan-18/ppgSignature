@@ -57,7 +57,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'signature_restaurant.wsgi.application'
+WSGI_APPLICATION = 'signature_restaurant.wsgi.app'
 
 DATABASES = {
     'default': {
