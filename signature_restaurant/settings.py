@@ -12,7 +12,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security settings
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-change-this-in-production')
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['ppg-signature.vercel.app', 'localhost', '127.0.0.1']
 
@@ -62,24 +62,25 @@ TEMPLATES = [
 WSGI_APPLICATION = 'signature_restaurant.wsgi.app'
 
 # Database configuration
-if DEBUG:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
+# if DEBUG:
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.sqlite3',
+#             'NAME': BASE_DIR / 'db.sqlite3',
+#         }
+#     }
+# else:
+    
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config('dbname'),
+        'USER': config('user'),
+        'PASSWORD': config('password'),
+        'HOST': config('host'),
+        'PORT': config('port')
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': config('dbname'),
-            'USER': config('user'),
-            'PASSWORD': config('password'),
-            'HOST': config('host'),
-            'PORT': config('port')
-        }
-    }
+}
 
 AUTH_PASSWORD_VALIDATORS = [
     {
