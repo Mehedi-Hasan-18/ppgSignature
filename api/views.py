@@ -1,16 +1,48 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from .models import MenuItem, Review, Outlet, Reservation, Order, OrderItem
+from .models import MenuItem, Review, Outlet, Reservation, Order, OrderItem, Image
 from .serializers import (
     MenuItemSerializer, ReviewSerializer, OutletSerializer,
     ReservationSerializer, OrderSerializer, OrderItemSerializer
 )
 
 
-class MenuItemViewSet(viewsets.ReadOnlyModelViewSet):
+from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
+
+class MenuItemViewSet(viewsets.ModelViewSet):
     queryset = MenuItem.objects.all()
     serializer_class = MenuItemSerializer
+    parser_classes = [JSONParser, MultiPartParser, FormParser]
+
+    def update(self, request, *args, **kwargs):
+        partial = True
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
+
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        self._handle_image(instance, self.request.data.get('image'))
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        self._handle_image(instance, self.request.data.get('image'))
+
+    def _handle_image(self, instance, image):
+        if image:
+            if hasattr(image, 'read'):  # It's a file
+                import cloudinary.uploader
+                result = cloudinary.uploader.upload(image, folder='menu_items/')
+                img_obj, created = Image.objects.get_or_create(url=result['secure_url'])
+            elif isinstance(image, str) and image.strip():  # It's a URL string
+                img_obj, created = Image.objects.get_or_create(url=image.strip())
+            else:
+                return
+            instance.image = img_obj
+            instance.save()
 
 
 class ReviewViewSet(viewsets.ReadOnlyModelViewSet):
@@ -18,9 +50,39 @@ class ReviewViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ReviewSerializer
 
 
-class OutletViewSet(viewsets.ReadOnlyModelViewSet):
+class OutletViewSet(viewsets.ModelViewSet):
     queryset = Outlet.objects.all()
     serializer_class = OutletSerializer
+    parser_classes = [JSONParser, MultiPartParser, FormParser]
+
+    def update(self, request, *args, **kwargs):
+        partial = True
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
+
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        self._handle_image(instance, self.request.data.get('image'))
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        self._handle_image(instance, self.request.data.get('image'))
+
+    def _handle_image(self, instance, image):
+        if image:
+            if hasattr(image, 'read'):  # It's a file
+                import cloudinary.uploader
+                result = cloudinary.uploader.upload(image, folder='outlets/')
+                img_obj, created = Image.objects.get_or_create(url=result['secure_url'])
+            elif isinstance(image, str) and image.strip():  # It's a URL string
+                img_obj, created = Image.objects.get_or_create(url=image.strip())
+            else:
+                return
+            instance.image = img_obj
+            instance.save()
 
 
 class ReservationViewSet(viewsets.ModelViewSet):

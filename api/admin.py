@@ -1,10 +1,15 @@
 from django.contrib import admin
-from .models import MenuItem, Review, Outlet, Reservation, Order, OrderItem
+from .models import MenuItem, Review, Outlet, Reservation, Order, OrderItem, Image
+
+
+@admin.register(Image)
+class ImageAdmin(admin.ModelAdmin):
+    list_display = ['url', 'uploaded_at']
 
 
 @admin.register(MenuItem)
 class MenuItemAdmin(admin.ModelAdmin):
-    list_display = ['name', 'category', 'price', 'created_at']
+    list_display = ['name', 'category', 'price', 'image', 'created_at']
     list_filter = ['category', 'created_at']
     search_fields = ['name', 'description']
 
@@ -18,7 +23,7 @@ class ReviewAdmin(admin.ModelAdmin):
 
 @admin.register(Outlet)
 class OutletAdmin(admin.ModelAdmin):
-    list_display = ['name', 'phone', 'created_at']
+    list_display = ['name', 'phone', 'image', 'created_at']
     search_fields = ['name', 'address']
 
 
